@@ -221,5 +221,11 @@ class TarefaController extends Controller
         ]);
     }
 
-   
+    function adicionarMascaraTelefone($telefone){
+        $telefone = substr_replace($telefone, '(', 0, 0);
+        $telefone = substr_replace($telefone, ')', 3, 0);
+        $telefone = substr_replace($telefone, '-', 9, 0);
+        return $telefone;
+    }
+
 }
