@@ -144,7 +144,69 @@ class TarefaController extends Controller
         echo ("importou Animal");
     }
     
-    
+    public function importacaoCliente(Request $request){
+       $caminho = $request->file('import')->path();     
+       $stream = fopen($caminho, 'r');
+       $csv = Reader::createFromStream($stream);
+       $csv->setDelimiter(",");
+       $csv->setHeaderOffset(0);
+
+       $stmt = (new Statement());
+
+       $dados = $stmt->process($csv);
+
+       $telefones = [
+        'Telefone1',
+        'Telefone2'
+        ];
+
+        foreach($dados as $dado){
+            try{
+
+                $dado['Email'] = filter_var($dado['Email'], FILTER_VALIDATE_EMAIL) ? $dado['Email']: null;
+            }catch(\Exception $e){
+                echo "Experado dados de cliente";
+                exit;
+            }
+           
+           Pessoa::firstOrCreate(
+            ['id' => $dado['Id']],
+            [
+                'nome' => $dado['Nome'],
+
+            ]);
+
+            foreach($telefones as $telefone){
+                $dado[$telefone] = preg_replace("/[^0-9]/", "", $dado[$telefone]);
+                if(strlen($dado[$telefone]) == 11){
+                    $contato = $dado[$telefone];
+                    $contato = $this->adicionarMascaraTelefone($contato);
+                    $tipo = 'celular';
+                    $this->salvarContatoTelefone($dado['Id'],$tipo,$contato);
+                }elseif(strlen($dado[$telefone]) == 10 && (substr($dado[$telefone],2,1) == 9 || substr($dado[$telefone],2,1) == 8)){        
+                    $contato = substr_replace($dado[$telefone], '9', 2, 0);
+                    $contato = $this->adicionarMascaraTelefone($contato);
+                    $tipo = 'celular';
+                    $this->salvarContatoTelefone($dado['Id'],$tipo, $contato);
+                }elseif(strlen($dado[$telefone]) == 10 && (substr($dado[$telefone],2,1) == 2 || substr($dado[$telefone],2,1) == 3)){
+                    $contato = $dado[$telefone];
+                    $tipo = 'fixo';
+                    $this->salvarContatoTelefone($dado['Id'],$tipo, $contato);
+                }
+            }
+
+            if($dado['Email'] != null){
+                Contato::create([
+                    'pessoa_id' => $dado['Id'],
+                    'tipo' => 'email',
+                    'contato' => $dado['Email']
+                ]);
+            }
+           
+       }
+
+        echo ("importou Cliente");
+    }
 
   
 
