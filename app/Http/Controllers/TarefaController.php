@@ -213,6 +213,13 @@ class TarefaController extends Controller
         return $d && $d->format($format) == $date;
     }
 
+    function salvarContatoTelefone($pessoa_id, $tipo, $contato){
+        Contato::create([
+            'pessoa_id' => $pessoa_id,
+            'tipo' => $tipo,
+            'contato' => $contato
+        ]);
+    }
 
    
 }
