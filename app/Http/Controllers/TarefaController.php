@@ -49,7 +49,30 @@ class TarefaController extends Controller
     }
 
 
-   
+   public function exportacaoAnimal() {
+
+        $animais = (Animal::get());
+        $nomeAtributos = $animais[0]->nomeColunas();
+        
+        $csv = Writer::createFromString('');
+        $csv->insertOne($nomeAtributos);
+        
+        foreach($animais as $animal){
+
+            $csv->insertOne([
+                $animal->Id,
+                $animal->IdCliente,
+                $animal->Nome,
+                $animal->Raca,
+                $animal->Especie,
+                $animal->HistoricoClinico,
+                $animal->Nascimento,
+            ]);            
+        }
+        $nome_arquivo = 'lista_de_animal.csv';
+        $csv->output($nome_arquivo);
+
+    }
 
 
   
