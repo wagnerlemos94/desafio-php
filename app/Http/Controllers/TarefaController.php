@@ -75,15 +75,24 @@ class TarefaController extends Controller
     }
 
 
+   public function importacao(Request $request) {
+
+    
+        if($request->option == "cliente" && $request->import){
+            $this->importacaoCliente($request);
+        }elseif($request->option == "animal" && $request->import){
+            $this->importacaoAnimal($request);
+        }else{
+            echo "Adicione um arquivo";
+        }
+       
+    }  
+
+    
+    
+    
+
   
 
-    
-    
    
-
-    
-
-   
-  
-
 }
